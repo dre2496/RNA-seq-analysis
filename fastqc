@@ -1,0 +1,9 @@
+# ran fastqc on all untrimmed and trimmed files 
+
+#go to directory with samples you want to analyze then run: 
+fastqc *.fastq.gz*
+
+## gives you .zip and .html files
+#separate these by doing: 
+mv *.zip /path/to/dest/
+mv *.html /path/to/dest/
