@@ -1,0 +1,22 @@
+#started with RawData directory 
+# Kabir ran trimmomatic on 1st sample with: 
+
+trimmomatic PE fastqrawdata/1-CGCTCATT-ACGTCCTG_S1_L006_R1_001.fastq.gz fastqrawdata/1-CGCTCATT-ACGTCCTG_S1_L006_R2_001.fastq.gz 
+Results/1-CGCTCATT-ACGTCCTG_S1_L006_R1_001_trimmed_paired.fastq.gz Results/1-CGCTCATT-ACGTCCTG_S1_L006_R1_001_trimmed_unpaired.fastq.gz
+Results/1-CGCTCATT-ACGTCCTG_S1_L006_R2_001_trimmed_paired.fastq.gz Results/1-CGCTCATT-ACGTCCTG_S1_L006_R2_001_trimmed_unpaired.fastq.gz 
+ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:TRUE LEADING:3 TRAILING:3 MINLEN:50
+
+
+# wrote a for loop to run trimmomatic with above parameters on all sequences
+
+ for infile in *R1_001.fastq.gz; 
+ do   
+ base=$(basename ${infile} R1_001.fastq.gz); 
+ trimmomatic PE ${infile} ${base}R2_001.fastq.gz  ${base}R1_001_trimmed_paired.fastq.gz 
+ ${base}R1_001_trimmed_unpaired.fastq.gz  ${base}R2_001_trimmed_paired_fastq.gz
+ ${base}R2_001_trimmed_unpaired.fastq.gz  
+ ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:TRUE LEADING:3 TRAILING:3 MINLEN:50; done
+ 
+ 
+ #some samples produces a "fatal error" report (i.e. hs_err_pid23218.log) 
+ # still don't know why
