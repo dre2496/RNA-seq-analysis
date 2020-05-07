@@ -6,8 +6,11 @@ Genome is now available for this fungus, which was not when Sonya Erlandson was 
 cd Volumes/Mykodrive_B3/Andrea
 
 
-#data 
+#data:
 - RawData: contains raw sequencing fastq files from Sonya
+- Tru-Seq3-PE-2.fa: adapter sequences used for trimmomatic
+
+#Results:
 - untrimm_fastqc:
   - fastqchtml - untrimmed fastqc results
   - fastqczip - untrimmed fastqc results
@@ -15,8 +18,6 @@ cd Volumes/Mykodrive_B3/Andrea
   - unpaired_fastq: untrimmed fastq sequences
   - paired_fastq: trimmed fastq sequences, no adapters
 - multiqc_data: first round of mutli_qc reports
-- Tru-Seq3-PE-2.fa: adapter sequences used for trimmomatic
-
 
 
 #masterdf_boxplots.R 
