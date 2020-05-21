@@ -20,5 +20,5 @@ ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:TRUE LEADING:3 TRAILING:3 MINLEN:50
  ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:TRUE LEADING:3 TRAILING:3 MINLEN:50; done
  
  
- #some samples produces a "fatal error" report (i.e. hs_err_pid23218.log) 
- # still don't know why
+ #some samples produced a "fatal error" report (i.e. hs_err_pid23218.log) 
+ #tells you which samples if you open the error report 
