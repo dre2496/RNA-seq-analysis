@@ -8,7 +8,10 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #This script assumes your trimmed, demultiplexed input files are in subdirectry of the project folder, results/paired_fastq
+# split FWD and REV reads 
 
+*R2_001_trimmed_paired.fastq.gz
+*R2_001_trimmed_paired_fastq.gz 
 #make directory for kallisto results
 
 mkdir -p Results/kallisto_analysis/chronic.stress.roots
@@ -29,6 +32,6 @@ kallisto quant -i inputFastaName.index -o sample1_kallisto -b 100 sample1_read1.
 for FWD in $( find Results/paired_fastq -name "*R1_001_trimmed_paired.fastq.gz")
 do 
 REV=`echo $FWD | sed 's/R1_001_trimmed_paired.fastq.gz/R2_001_trimmed_paired.fastq.gz/'`
-name=$(basename ${FWD} | sed 's/.R1_001_trimmed_paired.fastq.gz//')
+name=$(basename ${FWD} | sed 's/_R1_001_trimmed_paired.fastq.gz//')
 kallisto quant --index=Results/kallisto_analysis/Suipun1_GeneCatalog_transcripts_kallisto_index --output-dir=Results/kallisto_analysis/chronic.stress.roots/${name} -b 100 --threads=4 $FWD $REV
 done
