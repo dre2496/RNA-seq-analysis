@@ -6,23 +6,30 @@ Genome is now available for this fungus, which was not when Sonya Erlandson was 
 cd Volumes/Mykodrive_B3/Andrea
 
 
-#data:
-- RawData: contains raw sequencing fastq files from Sonya
-- Tru-Seq3-PE-2.fa: adapter sequences used for trimmomatic
-
-#Results:
-- untrimm_fastqc:
-  - fastqchtml - untrimmed fastqc results
-  - fastqczip - untrimmed fastqc results
-- trimmomatic results
-  - unpaired_fastq: untrimmed fastq sequences
-  - paired_fastq: trimmed fastq sequences, no adapters
-- multiqc_data: first round of mutli_qc reports
+/data:
+/RawData - contains raw sequencing fastq files from Sonya
+/masterdataframe.csv - contains bishop pine physiochemical properties under chronic and acute stress conditions measured by Sonya
+/Tru-Seq3-PE-2.fa - adapter sequences used for trimmomatic
 
 
-#masterdf_boxplots.R 
-- R file containing the code for the boxplots I've made for phsyiochemical properties of bishop pine
-
-
-
-
+/Results:
+/untrimm_fastqc:
+  /fastqchtml - untrimmed fastqc results
+  /fastqczip - untrimmed fastqc results
+  /unpaired_fastq - untrimmed fastq sequences
+  /paired_fastq - trimmed fastq sequences, no adapters
+  /multiqc_data - mutli_qc reports for trimmed sequences 
+  /kallisto_analysis: files needed for running kallisto 
+    /chronic.stress.roots - results from pseudoalignment of transcriptome provided by JGI Filtered Models ("best")
+    /Suipun1_GeneCatalog_Transcripts - JGI transcriptome FASTA file used to build kallisto index 
+    /Suipun1_GeneCatalog_Transcripts_index ^
+    
+/Rscripts: 
+  /masterdf_boxplots.R - file containing the code for the boxplots I've made for phsyiochemical properties of bishop pine
+  /statisticalAnalysis.R - files containing ANOVA and Tukey HSD tests for physiochemical data (masterdataframe.csv) 
+ 
+/Suillus_Pungenes_Genome: 
+  /QC_and_Genome_Assembly
+  /Transcriptome_Assembly
+  
+/SuipunStandDraft_copy - file containing JGI Suillus Pungens Genome and Transcriptome from JGI 
