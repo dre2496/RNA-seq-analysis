@@ -7,25 +7,24 @@
 ## useful tutorial on kallisto @ https://github.com/griffithlab/rnaseq_tutorial/wiki/Kallisto
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#This script assumes your trimmed, demultiplexed input files are in subdirectry of the project folder, results/trimmed
+#This script assumes your trimmed, demultiplexed input files are in subdirectry of the project folder, results/paired_fastq
 
 #make directory for kallisto results
 
-mkdir -p Results/kallisto/chronic.stress.roots
+mkdir -p Results/kallisto_analysis/chronic.stress.roots
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #run kallisto
  
 #####
-#if you haven't made an index uncomment the following script
-#######
+#to make an index run the following script
 
 #kallisto index --index=Results/kallisto_analysis/Suipun1_GeneCatalog_transcripts_kallisto_index Results/kallisto_analysis/Suipun1_GeneCatalog_Transcripts/Suipun1_GeneCatalog_transcripts_20200424.nt.fasta.gz
 
 # command for aligning paired-end reads
 kallisto quant -i inputFastaName.index -o sample1_kallisto -b 100 sample1_read1.fastq.gz sample1_read2.fastq.gz
 
-#for loop# 
+#for loop 
 
 for FWD in $( find Results/paired_fastq -name "*R1_001_trimmed_paired.fastq.gz")
 do 
