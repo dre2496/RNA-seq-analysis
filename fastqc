@@ -1,9 +1,15 @@
+#!/bin/bash
+#install fastqc: https://raw.githubusercontent.com/s-andrews/FastQC/master/INSTALL.txt
+
+
 # ran fastqc on all untrimmed and trimmed files 
 
 #go to directory with samples you want to analyze then run: 
 fastqc *.fastq.gz*
 
 ## gives you .zip and .html files
-#separate these by doing: 
+#separate types of files by: 
 mv *.zip /path/to/dest/
 mv *.html /path/to/dest/
+
+# these will be the input files for trimmomatic 
