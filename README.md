@@ -1,7 +1,7 @@
 # RNA-seq-analysis
 Working on an RNA-seq dataset for pine root tissues colonized by an ectomycorrhizal fungus in a greenhouse drought manipulation experiment (same plant & fungus across different watering regimes). 
 The goal is to investigate mycorrhizal fungal response to drought through differential gene expression and physiochemical properties. 
-The genome is now available for this fungus(Suillus pungens), which was not when Sonya Erlandson was working on this project, and got the samples sequenced. 
+The genome is now available for this fungus(Suillus pungens), which was not when Sonya Erlandson was working on this project, and collected and sequenced samples.
 
 cd Volumes/Mykodrive_B3/Andrea
 
