@@ -142,8 +142,12 @@ head(tx2gene)
 
 
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# building slueth objects 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
 #build sleuth objects with gene info: chronic and acute conditions 
-so2 <-sleuth_prep(metadata.r, ~Treatment, target_mapping = tx2gene, aggregation_column = 'ens_gene',
+so2 <-sleuth_prep(metadata.r, ~Treatment, target_mapping = tx2gene,aggregation_column = 'ens_gene',
                 extra_bootstrap_summary = TRUE,read_bootstrap_tpm = TRUE)
 
 #only chronic
@@ -154,40 +158,33 @@ so3 <- sleuth_prep(metadata.r2, ~Treatment, target_mapping = tx2gene, aggregatio
 so4 <- sleuth_prep(metadata.r3, ~Treatment, target_mapping = tx2gene, aggregation_column = 'ens_gene',
                    extra_bootsrap_summary = TRUE, read_bootsrap_tpm = TRUE)
 
-## analysis so2
-so2 <-  sleuth_fit(so2) 
+## analysis
+so2 <-  sleuth_fit(so2)
 so2 <- sleuth_fit(so2, ~1, 'reduced')
 so2 <- sleuth_lrt(so2, 'reduced', 'full')
 
 
-## analysis so3 chronic
+## analysis
 so3 <-  sleuth_fit(so3)
 so3 <- sleuth_fit(so3, ~1, 'reduced')
 so3 <- sleuth_lrt(so3, 'reduced', 'full')
 
-## analysis so4
+## analysis
 so4 <-  sleuth_fit(so4)
 so4 <- sleuth_fit(so4, ~1, 'reduced')
 so4 <- sleuth_lrt(so4, 'reduced', 'full')
 
 
-#plot pca * this feature also included in slueth live * 
-plot_pca(so2,color_by="Treatment",units="tpm",use_filtered = TRUE)
-plot_pca(so3,color_by="Treatment",units="tpm",use_filtered = TRUE)
-plot_pca(so4,color_by="Treatment",units="tpm",use_filtered = TRUE)
-
-
-# exploring gene level results
+#### gene level results ####
 sleuth_table_gene <- sleuth_results(so2, 'reduced:full', 'lrt', show_all = FALSE)
 sleuth_table_gene <- dplyr::filter(sleuth_table_gene, pval <= 0.01)
 head(sleuth_table_gene, 20)
-
 
 sleuth_table_gene %>% 
   arrange(pval) %>% 
   slice(1:10)
 
-# gene level results for chronic model
+#gene level results
 sleuth_table_gene3 <- sleuth_results(so3, 'reduced:full', 'lrt', show_all = FALSE)
 sleuth_table_gene3 <- dplyr::filter(sleuth_table_gene3, pval <= 0.01)
 head(sleuth_table_gene3, 20)
@@ -196,7 +193,7 @@ sleuth_table_gene3 %>%
   arrange(pval) %>% 
   slice(1:10)
 
-# gene level results for acute model
+#gene level results
 sleuth_table_gene4 <- sleuth_results(so4, 'reduced:full', 'lrt', show_all = FALSE)
 sleuth_table_gene4 <- dplyr::filter(sleuth_table_gene3, pval <= 0.01)
 head(sleuth_table_gene4, 20)
@@ -205,8 +202,7 @@ sleuth_table_gene4 %>%
   arrange(pval) %>% 
   slice(1:10)
 
-#### interactive sites - sleuth live ###
-
+## interactive site -  sleuth live ####
 sleuth_live(so2)
 sleuth_live(so3)
-sleuth_live(so4)            
+sleuth_live(so4)
