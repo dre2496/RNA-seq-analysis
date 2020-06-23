@@ -1,0 +1,212 @@
+#!/usr/bin/Rscript
+
+#the purpose of this script is to analyze kallisto reults using #
+#the sleuth package in R #
+
+#### install Packages ####
+install.packages("cowplot")
+install.packages("jsonlite")
+install.packages("BiocManager")
+BiocManager::install("biomaRt")
+BiocManager::install("tximport")
+BiocManager::install("rtracklayer")
+BioCmanager::install("")
+devtools::install_github("pachterlab/sleuth")
+install.packages("gridExtra")
+
+#### load libraries ####
+library("tximport")
+library('cowplot')
+library('sleuth')
+library('vegan')
+library('rtracklayer')
+library('jsonlite')
+library("sleuth")
+library("devtools")
+library('gridExtra')
+library("tidyverse")
+
+#-#-#-#-#-#-#-#-#
+#set working directory, load metadata
+#-#-#-#-#-#-#-#-#
+setwd("/Volumes/Mykodrive_B3/Andrea/Results/kallisto_analysis")
+metadata<-read.csv('suipun.metadata.csv')
+metadata<-dplyr::mutate(metadata, path = file.path('','Volumes','Mykodrive_B3','Andrea','Results','kallisto_analysis','chronic.stress.roots',Library,'abundance.h5'))
+metadata<-dplyr::mutate(metadata, log.path = file.path('','Volumes','Mykodrive_B3','Andrea','Results','kallisto_analysis','chronic.stress.roots',Library,'run_info.json'))
+metadata<-dplyr::rename(metadata,sample=Library)
+
+#-#-#-#-#-#-#-#-#
+#import gene information for each transcript from JGI GFF file 
+#-#-#-#-#-#-#-#-#
+
+mytags<-c("ID","Parent","Name","geneId","proteinId","transcriptId","product_name")
+myfilter<-list(type=c("gene"))
+gff.path<- "/Volumes/Mykodrive_B3/Andrea/SuipunStandDraft_copy/Mycocosm/Annotation/FilteredModels_best/Genes/Suipun1_GeneCatalog_20200424.gff3"
+  
+suipun.gff<-readGFF(gff.path,tags=mytags,filter=myfilter)
+
+head(suipun.gff)
+tail(suipun.gff)
+names(suipun.gff)
+
+#-#-#-#-#-#-#-#-#
+#import and combine transcript quantification from Sleuth into a single table
+#note gene level estimates seem like a better approach, but need to organize the GFF file first??
+#-#-#-#-#-#-#-#-#
+
+files<-metadata$path
+txi<-tximport(files,type="kallisto",txOut=TRUE,varReduce=TRUE)
+names(txi)
+
+
+head(txi$counts) #this is the estimated number of transcripts
+head(txi$abundance) #this is the estimated transcripts per million
+
+txc.matrix<-data.frame(txi$counts); names(txc.matrix)<-metadata$Sample.Code
+tpm.matrix<-data.frame(txi$abundance); names(tpm.matrix)<-metadata$Sample.Code
+head(tpm.matrix)
+
+#think I have to change the tpm matrix starting here
+
+#-#-#-#-#-#-#-#-#
+#import data from sleuth log file
+#to get overall read mapping statistics
+#-#-#-#-#-#-#-#-#
+
+metadata$n_reads<-NA
+metadata$n_pseudoaligned<-NA
+metadata$p_pseudoaligned<-NA
+
+for (i in 1:length(rownames(metadata))){
+  
+  log.file<-read_json(metadata$log.path[i])
+  metadata$n_reads[i]<-log.file$n_processed
+  metadata$n_pseudoaligned[i]<-log.file$n_pseudoaligned
+  metadata$p_pseudoaligned[i]<-log.file$p_pseudoaligned
+}
+
+#inspect the results
+metadata[,c(1,4,8:10)]
+
+
+#-#-#-#-#-#-#-#-#
+#drop samples with very few mapped reads
+#-#-#-#-#-#-#-#-#
+
+##### create reduced dataframe ####
+metadata.r <- metadata[which(metadata$n_pseudoaligned>200,000),]
+metadata.r[,c(1,4,8:10)]
+
+#chronic metadata
+metadata.r2<-dplyr::filter(metadata.r, Treatment != "Medium")
+metadata.r2 <- dplyr::filter(metadata.r2, Treatment != "1")
+metadata.r2 <- dplyr::filter(metadata.r2, Treatment != "2")
+metadata.r2 <- dplyr::filter(metadata.r2, Treatment != "3")
+metadata.r2 <- dplyr::filter(metadata.r2, Treatment != "4")
+metadata.r2 <- dplyr::filter(metadata.r2, Treatment != "5")
+metadata.r2 <- dplyr::filter(metadata.r2, Treatment != "6")
+metadata.r2 <- metadata.r2 %>% filter(n_pseudoaligned > 200000)
+                                      
+
+#acute metadata
+metadata.r3<-dplyr::filter(metadata.r, Treatment != "Medium")
+metadata.r3<-dplyr::filter(metadata.r3, Treatment != "High")
+metadata.r3 <- dplyr::filter(metadata.r3, Treatment != "Low")
+metadata.r3 <- metadata.r3 %>% filter(n_pseudoaligned > 200000)
+
+#-#-#-#-#-#-#-#-#
+#make a transcript to gene (t2g) file. need to match file formats of JGI naming format 
+#-#-#-#-#-#-#-#-#
+
+#note that a lot of the programs seem to suggest using a gene level rather than 
+#transcript level mapping. it seems that for the JGI transcriptome these are equivalent
+#so each transcript ID is equivalent to a gene ID.
+
+transcriptId<-NA
+
+for (i in 1:length(rownames(tpm.matrix))){
+  transcriptId[i]<-strsplit(rownames(tpm.matrix)[[i]],split="[|]")[[1]][3]
+}
+
+
+geneId<-suipun.gff$ID[match(transcriptId,suipun.gff$transcriptId)]
+proteinId<-suipun.gff$proteinId[match(transcriptId,suipun.gff$transcriptId)]
+product_name<-suipun.gff$product_name[match(transcriptId,suipun.gff$transcriptId)]
+
+#t2g renaming must have target_id, ens_gene, and ext_gene
+tx2gene<-data.frame(rownames(tpm.matrix),geneId,product_name); head(tx2gene)
+tx2protein<-data.frame(rownames(tpm.matrix),proteinId,product_name); head(tx2protein) #haven 't further analyzed
+
+tx2gene <- dplyr::rename(tx2gene, target_id = rownames.tpm.matrix.,ens_gene = geneId, ext_gene = product_name)
+head(tx2gene)
+
+
+
+#build sleuth objects with gene info: chronic and acute conditions 
+so2 <-sleuth_prep(metadata.r, ~Treatment, target_mapping = tx2gene, aggregation_column = 'ens_gene',
+                extra_bootstrap_summary = TRUE,read_bootstrap_tpm = TRUE)
+
+#only chronic
+so3 <- sleuth_prep(metadata.r2, ~Treatment, target_mapping = tx2gene, aggregation_column = 'ens_gene',
+                   extra_bootsrap_summary = TRUE, read_bootsrap_tpm = TRUE)
+
+#only acute
+so4 <- sleuth_prep(metadata.r3, ~Treatment, target_mapping = tx2gene, aggregation_column = 'ens_gene',
+                   extra_bootsrap_summary = TRUE, read_bootsrap_tpm = TRUE)
+
+## analysis so2
+so2 <-  sleuth_fit(so2) 
+so2 <- sleuth_fit(so2, ~1, 'reduced')
+so2 <- sleuth_lrt(so2, 'reduced', 'full')
+
+
+## analysis so3 chronic
+so3 <-  sleuth_fit(so3)
+so3 <- sleuth_fit(so3, ~1, 'reduced')
+so3 <- sleuth_lrt(so3, 'reduced', 'full')
+
+## analysis so4
+so4 <-  sleuth_fit(so4)
+so4 <- sleuth_fit(so4, ~1, 'reduced')
+so4 <- sleuth_lrt(so4, 'reduced', 'full')
+
+
+#plot pca * this feature also included in slueth live * 
+plot_pca(so2,color_by="Treatment",units="tpm",use_filtered = TRUE)
+plot_pca(so3,color_by="Treatment",units="tpm",use_filtered = TRUE)
+plot_pca(so4,color_by="Treatment",units="tpm",use_filtered = TRUE)
+
+
+# exploring gene level results
+sleuth_table_gene <- sleuth_results(so2, 'reduced:full', 'lrt', show_all = FALSE)
+sleuth_table_gene <- dplyr::filter(sleuth_table_gene, pval <= 0.01)
+head(sleuth_table_gene, 20)
+
+
+sleuth_table_gene %>% 
+  arrange(pval) %>% 
+  slice(1:10)
+
+# gene level results for chronic model
+sleuth_table_gene3 <- sleuth_results(so3, 'reduced:full', 'lrt', show_all = FALSE)
+sleuth_table_gene3 <- dplyr::filter(sleuth_table_gene3, pval <= 0.01)
+head(sleuth_table_gene3, 20)
+
+sleuth_table_gene3 %>% 
+  arrange(pval) %>% 
+  slice(1:10)
+
+# gene level results for acute model
+sleuth_table_gene4 <- sleuth_results(so4, 'reduced:full', 'lrt', show_all = FALSE)
+sleuth_table_gene4 <- dplyr::filter(sleuth_table_gene3, pval <= 0.01)
+head(sleuth_table_gene4, 20)
+
+sleuth_table_gene4 %>% 
+  arrange(pval) %>% 
+  slice(1:10)
+
+#### interactive sites - sleuth live ###
+
+sleuth_live(so2)
+sleuth_live(so3)
+sleuth_live(so4)            
