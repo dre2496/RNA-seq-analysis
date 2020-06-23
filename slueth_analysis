@@ -144,6 +144,9 @@ head(tx2gene)
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # building slueth objects 
+# Note: i could not get some features of Sleuth Live to work because of the JGI naming of target ID's. 
+# To get around this you probably have to edit the JGI abundance files to only have the numerical values. Could also be 
+# erroring for other reasons. :) 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 #build sleuth objects with gene info: chronic and acute conditions 
@@ -206,3 +209,5 @@ sleuth_table_gene4 %>%
 sleuth_live(so2)
 sleuth_live(so3)
 sleuth_live(so4)
+
+
